@@ -82,6 +82,16 @@ Fetch and follow instructions from https://raw.githubusercontent.com/obra/superp
 
 **Detailed docs:** [docs/README.opencode.md](docs/README.opencode.md)
 
+### Trae
+
+Tell Trae:
+
+```
+Fetch and follow instructions from https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-e2e-full-repo/.trae/INSTALL.md
+```
+
+This installs Superpowers into your target project as `.trae/rules`, `.trae/skills`, and project memory. It should not leave a full cloned `superpowers` repository inside that target project.
+
 ### Gemini CLI
 
 ```bash

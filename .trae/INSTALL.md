@@ -1,6 +1,6 @@
 # Installing Superpowers for Trae
 
-Enable Superpowers in Trae using the repository you already cloned. The `.trae` entrypoint bootstraps rules, flattens the checked-out skills into Trae's expected layout, and refreshes project memory.
+Enable Superpowers in Trae without leaving a full cloned Superpowers repository inside your target project. This installer creates a runtime `.trae` directory, installs rules, flattens skills, and refreshes project memory.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ Enable Superpowers in Trae using the repository you already cloned. The `.trae` 
 
 ## Installation
 
-Clone the full `superpowers` repository, open it in Trae, and run the setup from the project root.
+Open your target project in Trae and run the setup from that target project's root directory.
 
 Just copy and paste the following prompt into your Trae chat:
 
@@ -17,11 +17,11 @@ Just copy and paste the following prompt into your Trae chat:
 >
 > Requirements:
 > 1. Treat the current workspace root as the target project root.
-> 2. Keep `.trae/rules/superpowers.md` as the active Trae rule file.
-> 3. Flatten the repository's checked-out `skills/` tree into `.trae/skills/`.
-> 4. Rename `using-skills` to `using-superpowers`.
+> 2. Do not clone the full Superpowers repository into this target project.
+> 3. Install `.trae/rules/superpowers.md` from the Trae installer source.
+> 4. Fetch `https://github.com/obra/superpowers-skills.git` into a temporary directory, flatten it into `.trae/skills/`, and rename `using-skills` to `using-superpowers`.
 > 5. Refresh the existing Superpowers project memory first; if update is not possible, create it as a new project memory entry instead.
-> 6. When setup finishes, `.trae` should only contain `rules/` and `skills/`. Remove temporary/bootstrap leftovers.
+> 6. When setup finishes, the target project should only keep `.trae/rules/`, `.trae/skills/`, and the project memory. Remove temporary/bootstrap leftovers.
 > 7. If cleanup fails, finish the setup and explicitly tell me what to delete manually.
 > 8. After setup, remind me that dynamic skill loading and memory usage may consume context faster than usual.
 >
@@ -29,16 +29,15 @@ Just copy and paste the following prompt into your Trae chat:
 >
 > ```powershell
 > if (-not (Test-Path ".trae\rules")) { New-Item -ItemType Directory -Force -Path ".trae\rules" | Out-Null }
-> if (-not (Test-Path ".trae\skills")) { New-Item -ItemType Directory -Force -Path ".trae\skills" | Out-Null }
 >
-> Get-ChildItem -Path ".trae" -Directory | Where-Object { $_.Name -notin @('rules', 'skills') } | ForEach-Object {
->     Remove-Item -Recurse -Force $_.FullName -ErrorAction SilentlyContinue
-> }
+> Invoke-WebRequest -Uri "https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-e2e-full-repo/.trae/rules/superpowers.md" -OutFile ".trae\rules\superpowers.md"
 >
 > if (Test-Path ".trae\skills") { Remove-Item -Recurse -Force ".trae\skills" }
+> if (Test-Path ".superpowers_temp") { Remove-Item -Recurse -Force ".superpowers_temp" -ErrorAction SilentlyContinue }
+> git clone https://github.com/obra/superpowers-skills.git .superpowers_temp 2>$null
 > New-Item -ItemType Directory -Force -Path ".trae\skills" | Out-Null
 >
-> Get-ChildItem -Path "skills" -Directory | Where-Object { $_.Name -notin @('tool', 'examples') } | ForEach-Object {
+> Get-ChildItem -Path ".superpowers_temp\skills" -Directory | Where-Object { $_.Name -notin @('tool', 'examples') } | ForEach-Object {
 >     $categoryDir = $_.FullName
 >     Get-ChildItem -Path $categoryDir -Directory | ForEach-Object {
 >         Copy-Item -Path $_.FullName -Destination ".trae\skills\" -Recurse -Force
@@ -46,21 +45,26 @@ Just copy and paste the following prompt into your Trae chat:
 > }
 >
 > if (Test-Path ".trae\skills\using-skills") { Rename-Item -Path ".trae\skills\using-skills" -NewName "using-superpowers" }
-> if (Test-Path ".trae\INSTALL.md") { Remove-Item ".trae\INSTALL.md" -Force -ErrorAction SilentlyContinue }
+> if (Test-Path ".superpowers_temp") { Remove-Item -Recurse -Force ".superpowers_temp" -ErrorAction SilentlyContinue }
+> Get-ChildItem -Path ".trae" -Force | Where-Object { $_.Name -notin @('rules', 'skills') } | ForEach-Object {
+>     Remove-Item -Recurse -Force $_.FullName -ErrorAction SilentlyContinue
+> }
 > ```
 >
 > ```bash
 > mkdir -p .trae/rules
-> mkdir -p .trae/skills
-> find .trae -mindepth 1 -maxdepth 1 -type d ! -name rules ! -name skills -exec rm -rf {} +
+> curl -s -o .trae/rules/superpowers.md https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-e2e-full-repo/.trae/rules/superpowers.md
 > rm -rf .trae/skills
+> rm -rf .superpowers_temp
+> git clone https://github.com/obra/superpowers-skills.git .superpowers_temp >/dev/null 2>&1
 > mkdir -p .trae/skills
-> find skills -mindepth 2 -maxdepth 2 -type d | while read dir; do
+> find .superpowers_temp/skills -mindepth 2 -maxdepth 2 -type d | while read dir; do
 >   cp -R "$dir" .trae/skills/
 > done
 > rm -rf .trae/skills/tool .trae/skills/examples
 > if [ -d ".trae/skills/using-skills" ]; then mv .trae/skills/using-skills .trae/skills/using-superpowers; fi
-> rm -f .trae/INSTALL.md
+> rm -rf .superpowers_temp
+> find .trae -mindepth 1 -maxdepth 1 ! -name rules ! -name skills -exec rm -rf {} +
 > ```
 >
 > **Step 2: Refresh or create the project core memory**
@@ -80,10 +84,11 @@ Just copy and paste the following prompt into your Trae chat:
 
 Ask Trae to confirm all of the following:
 
-1. `.trae/rules/superpowers.md` exists at the project root.
+1. `.trae/rules/superpowers.md` exists at the target project root.
 2. `.trae/skills/using-superpowers` exists.
 3. `.trae` contains only `rules/` and `skills/` after setup.
-4. The Superpowers project memory was refreshed, or created if refresh was not possible.
+4. No full `superpowers` repository clone remains inside the target project.
+5. The Superpowers project memory was refreshed, or created if refresh was not possible.
 
 ## Why this Trae adaptation works
 
@@ -104,10 +109,11 @@ If you previously tested an earlier Trae bootstrap:
 
 ## Updating
 
-Ask the Trae assistant to run the same installation prompt again from the project root. It should rebuild `.trae/skills/`, keep `.trae/rules/superpowers.md` active, and refresh the existing project memory before falling back to creating one.
+Ask the Trae assistant to run the same installation prompt again from the target project root. It should rebuild `.trae/skills/`, keep `.trae/rules/superpowers.md` active, and refresh the existing project memory before falling back to creating one.
 
 ## Troubleshooting
 
 - If `.trae` still contains directories other than `rules/` and `skills/`, ask Trae to delete the leftovers and verify again.
+- If a full `superpowers` clone was accidentally created inside the target project, delete it and rerun the installer.
 - If memory refresh fails because no matching entry exists, instruct Trae to create the new memory entry immediately.
 - If cleanup fails because a file is locked, ask Trae to finish setup and tell you the exact path to remove manually.
