@@ -1,0 +1,21 @@
+You are evaluating the pre-merge Trae installer for Superpowers.
+
+Treat the current workspace root as the target project root.
+
+Fetch and follow the installer at:
+https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-pr947-test-support/.trae/INSTALL.md
+
+For this pre-merge evaluation only:
+- whenever the installer would fetch `https://raw.githubusercontent.com/obra/superpowers/main/.trae/rules/superpowers.md`
+- substitute `https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-pr947-test-support/.trae/rules/superpowers.md`
+
+Do not rewrite the `https://github.com/obra/superpowers-skills.git` dependency.
+
+This workspace already has a previous successful install. Rerun the installer and keep the result stable.
+Do not leave `.superpowers_temp`, nested skills trees, or duplicate content behind.
+
+After execution, report:
+1. whether the rerun passed or blocked
+2. whether the result stayed stable
+3. whether `.superpowers_temp` was removed
+4. whether you refreshed or created project memory
