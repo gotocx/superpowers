@@ -1,0 +1,20 @@
+You are evaluating the pre-merge Trae installer for Superpowers.
+
+Treat the current workspace root as the target project root.
+
+Fetch and follow the installer at:
+https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-pr947-test-support/.trae/INSTALL.md
+
+For this pre-merge evaluation only:
+- whenever the installer would fetch `https://raw.githubusercontent.com/obra/superpowers/main/.trae/rules/superpowers.md`
+- substitute `https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-pr947-test-support/.trae/rules/superpowers.md`
+
+Do not rewrite the `https://github.com/obra/superpowers-skills.git` dependency.
+
+This workspace already contains an unexpected file under `.trae`.
+Do not delete it blindly. Stop safely and tell me exactly what requires manual review.
+
+After execution, report:
+1. whether the install was blocked
+2. the exact blocker path or file name
+3. whether any destructive cleanup was avoided
