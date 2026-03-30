@@ -1,0 +1,21 @@
+You are evaluating the pre-merge Trae installer for Superpowers.
+
+Treat the current workspace root as the target project root.
+
+Fetch and follow the installer at:
+https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-pr947-test-support/.trae/INSTALL.md
+
+For this pre-merge evaluation only:
+- whenever the installer would fetch `https://raw.githubusercontent.com/obra/superpowers/main/.trae/rules/superpowers.md`
+- substitute `https://raw.githubusercontent.com/gotocx/superpowers/refs/heads/trae-pr947-test-support/.trae/rules/superpowers.md`
+
+Do not rewrite the `https://github.com/obra/superpowers-skills.git` dependency.
+
+Focus on the memory behavior:
+- first try to refresh an existing project-level Superpowers workflow memory
+- if refresh is not possible, create it instead
+
+After execution, report explicitly:
+1. whether you refreshed an existing memory or created a new one
+2. the memory title you used
+3. whether the filesystem install also passed
