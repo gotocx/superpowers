@@ -71,7 +71,10 @@ Just copy and paste the following prompt into your Trae chat:
 >     }
 > }
 >
-> if (Test-Path ".trae\skills\using-skills") { Rename-Item -Path ".trae\skills\using-skills" -NewName "using-superpowers" }
+> if (Test-Path ".trae\skills\using-skills") {
+>     if (Test-Path ".trae\skills\using-superpowers") { Remove-Item -Recurse -Force ".trae\skills\using-superpowers" }
+>     Rename-Item -Path ".trae\skills\using-skills" -NewName "using-superpowers"
+> }
 > if (Test-Path ".superpowers_temp") { Remove-Item -Recurse -Force ".superpowers_temp" -ErrorAction SilentlyContinue }
 > Get-ChildItem -Path ".trae" -Force | Where-Object { $_.Name -like 'temp_*' -or $_.Name -eq 'INSTALL.md' } | ForEach-Object {
 >     Remove-Item -Recurse -Force $_.FullName -ErrorAction SilentlyContinue
@@ -110,7 +113,10 @@ Just copy and paste the following prompt into your Trae chat:
 >   cp -R "$dir" .trae/skills/
 > done
 > rm -rf .trae/skills/tool .trae/skills/examples
-> if [ -d ".trae/skills/using-skills" ]; then mv .trae/skills/using-skills .trae/skills/using-superpowers; fi
+> if [ -d ".trae/skills/using-skills" ]; then
+>   rm -rf ".trae/skills/using-superpowers"
+>   mv .trae/skills/using-skills .trae/skills/using-superpowers
+> fi
 > rm -rf .superpowers_temp
 > find .trae -mindepth 1 -maxdepth 1 \( -name 'temp_*' -o -name INSTALL.md \) -exec rm -rf {} +
 > ```
