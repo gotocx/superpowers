@@ -13,6 +13,7 @@ $installerText = Get-Content -Path $installerPath -Raw
 $upstreamRuleUrl = 'https://raw.githubusercontent.com/obra/superpowers/main/.trae/rules/superpowers.md'
 $testRuleUrl = "https://raw.githubusercontent.com/$RuleOwner/$RuleRepo/refs/heads/$RuleRef/.trae/rules/superpowers.md"
 $skillsRepoUrl = 'https://github.com/obra/superpowers-skills.git'
+$skillsFixturePath = Join-Path $env:TEMP 'trae-installer-skills-fixture'
 
 $requiredSnippets = @(
     $upstreamRuleUrl,
@@ -46,6 +47,38 @@ function New-ScenarioRoot {
     return $root
 }
 
+function Initialize-SkillsFixture {
+    if (Test-Path $skillsFixturePath) {
+        return
+    }
+
+    $cloneSucceeded = $false
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $stdout = Join-Path $env:TEMP ('trae-skills-fixture-out-' + $attempt + '.txt')
+        $stderr = Join-Path $env:TEMP ('trae-skills-fixture-err-' + $attempt + '.txt')
+        $proc = Start-Process git -ArgumentList @('clone', '--depth', '1', $skillsRepoUrl, $skillsFixturePath) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+        if ($proc.ExitCode -eq 0) {
+            $cloneSucceeded = $true
+            break
+        }
+
+        if (Test-Path $skillsFixturePath) {
+            Remove-Item -Recurse -Force $skillsFixturePath -ErrorAction SilentlyContinue
+        }
+
+        if ($attempt -lt 3) {
+            Start-Sleep -Seconds 2
+        }
+    }
+
+    Get-ChildItem -Path $env:TEMP -Filter 'trae-skills-fixture-*.txt' | Remove-Item -Force -ErrorAction SilentlyContinue
+
+    if (-not $cloneSucceeded) {
+        $stderrText = if (Test-Path $stderr) { Get-Content $stderr -Raw } else { '' }
+        throw "skills fixture clone failed with exit code $($proc.ExitCode): $stderrText"
+    }
+}
+
 function Invoke-TraeInstaller {
     param([string]$RuleUrl)
 
@@ -74,13 +107,7 @@ function Invoke-TraeInstaller {
         Remove-Item -Recurse -Force '.superpowers_temp' -ErrorAction SilentlyContinue
     }
 
-    $stdout = Join-Path (Get-Location) 'git-out.txt'
-    $stderr = Join-Path (Get-Location) 'git-err.txt'
-    $proc = Start-Process git -ArgumentList @('clone', $skillsRepoUrl, '.superpowers_temp') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
-    if ($proc.ExitCode -ne 0) {
-        $stderrText = if (Test-Path $stderr) { Get-Content $stderr -Raw } else { '' }
-        throw "git clone failed with exit code $($proc.ExitCode): $stderrText"
-    }
+    Copy-Item -Path $skillsFixturePath -Destination '.superpowers_temp' -Recurse -Force
 
     New-Item -ItemType Directory -Force -Path '.trae\skills' | Out-Null
 
@@ -106,7 +133,6 @@ function Invoke-TraeInstaller {
         Rename-Item -Path '.trae\skills\using-skills' -NewName 'using-superpowers'
     }
 
-    Remove-Item $stdout, $stderr -Force -ErrorAction SilentlyContinue
     if (Test-Path '.superpowers_temp') {
         Remove-Item -Recurse -Force '.superpowers_temp' -ErrorAction SilentlyContinue
     }
@@ -147,6 +173,8 @@ function Run-Scenario {
 }
 
 $results = @()
+
+Initialize-SkillsFixture
 
 $results += Run-Scenario -Name 'clean-init' -Setup {
 } -Verify {

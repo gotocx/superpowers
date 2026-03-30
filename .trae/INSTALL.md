@@ -53,7 +53,7 @@ Just copy and paste the following prompt into your Trae chat:
 > Invoke-WebRequest -Uri "https://raw.githubusercontent.com/obra/superpowers/main/.trae/rules/superpowers.md" -OutFile ".trae\rules\superpowers.md"
 >
 > if (Test-Path ".superpowers_temp") { Remove-Item -Recurse -Force ".superpowers_temp" -ErrorAction SilentlyContinue }
-> git clone https://github.com/obra/superpowers-skills.git .superpowers_temp 2>$null
+> git clone --depth 1 https://github.com/obra/superpowers-skills.git .superpowers_temp 2>$null
 > New-Item -ItemType Directory -Force -Path ".trae\skills" | Out-Null
 >
 > Get-ChildItem -Path ".superpowers_temp\skills" -Directory | Where-Object { $_.Name -notin @('tool', 'examples') } | ForEach-Object {
@@ -105,7 +105,7 @@ Just copy and paste the following prompt into your Trae chat:
 > fi
 > curl -s -o .trae/rules/superpowers.md https://raw.githubusercontent.com/obra/superpowers/main/.trae/rules/superpowers.md
 > rm -rf .superpowers_temp
-> git clone https://github.com/obra/superpowers-skills.git .superpowers_temp >/dev/null 2>&1
+> git clone --depth 1 https://github.com/obra/superpowers-skills.git .superpowers_temp >/dev/null 2>&1
 > mkdir -p .trae/skills
 > find .superpowers_temp/skills -mindepth 1 -maxdepth 2 -type f -name SKILL.md -exec dirname {} \; | sort -u | while read dir; do
 >   dest=".trae/skills/$(basename "$dir")"

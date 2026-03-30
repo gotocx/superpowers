@@ -43,6 +43,8 @@ The PowerShell coverage script validates the filesystem behavior of the installe
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/trae-installer/run-installer-coverage.ps1 -RuleRef trae-pr947-test-support
 ```
 
+To reduce network flakiness, the script clones `superpowers-skills` once into a local fixture and reuses that fixture across scenarios. Manual harness runs should still use the real networked flow.
+
 What the script covers:
 
 - clean init
