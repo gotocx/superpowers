@@ -58,6 +58,7 @@ EXCLUDES=(
   "/.opencode/"
   "/.pi/"
   "/.pre-commit-config.yaml"
+  "/.trae/"
   "/.version-bump.json"
   "/.worktrees/"
   ".DS_Store"
@@ -70,6 +71,7 @@ EXCLUDES=(
   "/RELEASE-NOTES.md"
   "/gemini-extension.json"
   "/index.js"
+  "/hooks/hooks-trae.json"
   "/package.json"
 
   # Directories not shipped by canonical Codex plugins
